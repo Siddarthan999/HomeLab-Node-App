@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        hudson.plugins.sonar.SonarRunnerInstallation 'SonarScanner$LANG'
-    }
-
     environment {
         IMAGE_NAME = "node-app"
         CONTAINER_NAME = "node-app"
@@ -20,13 +16,16 @@ pipeline {
 
         stage('SonarQube Scan') {
             steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh """
-                        sonar-scanner \
-                        -Dsonar.projectKey=node-app \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=http://sonarqube:9000
-                    """
+                script {
+                    def scannerHome = tool 'SonarScanner'
+                    withSonarQubeEnv('Sonar қоғbe') {
+                        sh """
+                        ${scannerHome}/bin/sonar-scanner \
+                          -Dsonar.projectKey=node-app \
+                          -Dsonar.sources=. \
+                          -Dsonar.host.url=http://sonarqube:9000
+                        """
+                    }
                 }
             }
         }
