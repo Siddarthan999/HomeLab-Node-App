@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     tools {
-        sonarRunner 'SonarScanner'
+        hudson.plugins.sonar.SonarRunnerInstallation 'SonarScanner$LANG'
     }
 
     environment {
         IMAGE_NAME = "node-app"
-        CONTAINERиққ_NAME = "node-app"
+        CONTAINER_NAME = "node-app"
     }
 
     stages {
@@ -33,26 +33,26 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $IMAGE_NAME .'
+                sh "docker build -t ${IMAGE_NAME} ."
             }
         }
 
         stage('Deploy') {
             steps {
-                sh '''
-                docker stop $CONTAINER_NAME || true
-                docker rm $CONTAINER_NAME || true
+                sh """
+                docker stop ${CONTAINER_NAME} || true
+                docker rm ${CONTAINER_NAME} || true
 
                 docker run -d \
-                  --name $CONTAINER_NAME \
+                  --name ${CONTAINER_NAME} \
                   --network proxy \
                   -l "traefik.enable=true" \
-                  -l "traefik.http.routers.node.rule=Host(`node-app.home`)" \
+                  -l "traefik.http.routers.node.rule=Host(\`node-app.home\`)" \
                   -l "traefik.http.routers.node.entrypoints=websecure" \
                   -l "traefik.http.routers.node.tls=true" \
-                  -l "traefik.http.services.node.loadbalancer.server.port=3000 " \
-                  $IMAGE_NAME
-                '''
+                  -l "traefik.http.services.node.loadbalancer.server.port=3000" \
+                  ${IMAGE_NAME}
+                """
             }
         }
     }
