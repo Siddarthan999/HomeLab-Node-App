@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         IMAGE_NAME = "node-app"
-        CONTAINER_NAME = "node-app"
     }
 
     stages {
@@ -16,42 +15,37 @@ pipeline {
 
         stage('SonarQube Scan') {
             steps {
-                script {
-                    def scannerHome = tool 'SonarScanner'
-                    withSonarQubeEnv('Sonar қоғbe') {
-                        sh """
-                        ${scannerHome}/bin/sonar-scanner \
-                          -Dsonar.projectKey=node-app \
-                          -Dsonar.sources=. \
-                          -Dsonar.host.url=http://sonarqube:9000
-                        """
-                    }
+                withSonarQubeEnv('SonarQube') {
+                    sh """
+                        sonar-scanner \
+                        -Dsonar.projectKey=node-app \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=http://sonarqube:9000
+                    """
                 }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${IMAGE_NAME} ."
+                sh 'docker build -t $IMAGE_NAME .'
             }
         }
 
         stage('Deploy') {
             steps {
-                sh """
-                docker stop ${CONTAINER_NAME} || true
-                docker rm ${CONTAINER_NAME} || true
-
-                docker run -d \
-                  --name ${CONTAINER_NAME} \
+                sh '''
+                docker stop node-app || true
+                docker rm node-app || true
+                docker run -d --name node-app \
                   --network proxy \
                   -l "traefik.enable=true" \
-                  -l "traefik.http.routers.node.rule=Host(\`node-app.home\`)" \
+                  -l "traefik.http.routers.node.rule=Host(`app.home`)" \
                   -l "traefik.http.routers.node.entrypoints=websecure" \
                   -l "traefik.http.routers.node.tls=true" \
                   -l "traefik.http.services.node.loadbalancer.server.port=3000" \
-                  ${IMAGE_NAME}
-                """
+                  node-app
+                '''
             }
         }
     }
