@@ -7,6 +7,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "node-app"
+        CONTAINERиққ_NAME = "node-app"
     }
 
     stages {
@@ -19,7 +20,7 @@ pipeline {
 
         stage('SonarQube Scan') {
             steps {
-                withSonarQubeEnv('Sonarубежe') {
+                withSonarQubeEnv('SonarQube') {
                     sh """
                         sonar-scanner \
                         -Dsonar.projectKey=node-app \
@@ -39,16 +40,18 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                docker stop node-app || true
-                docker rm node-app || true
-                docker run -d --name node-app \
+                docker stop $CONTAINER_NAME || true
+                docker rm $CONTAINER_NAME || true
+
+                docker run -d \
+                  --name $CONTAINER_NAME \
                   --network proxy \
                   -l "traefik.enable=true" \
-                  -l "traefik.http.routers.node.rule=Host(`app.home`)" \
+                  -l "traefik.http.routers.node.rule=Host(`node-app.home`)" \
                   -l "traefik.http.routers.node.entrypoints=websecure" \
                   -l "traefik.http.routers.node.tls=true" \
-                  -l "traefik.http.services.node.loadbalancer.server.port=3000(Cursor)" \
-                  node-app
+                  -l "traefik.http.services.node.loadbalancer.server.port=3000 " \
+                  $IMAGE_NAME
                 '''
             }
         }
