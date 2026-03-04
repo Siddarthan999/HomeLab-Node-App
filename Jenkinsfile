@@ -13,18 +13,21 @@ pipeline {
             }
         }
 
-        stage('SonarQube Scan') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh """
-                        sonar-scanner \
-                        -Dsonar.projectKey=node-app \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=http://sonarqube:9000
-                    """
-                }
-            }
-        }
+	stage('SonarQube Scan') {
+	    steps {
+	        script {
+	            def scannerHome = tool 'SonarScanner'
+	            withSonarQubeEnv('SonarQube') {
+	                sh """
+	                    ${scannerHome}/bin/sonar-scanner \
+	                    -Dsonar.projectKey=node-app \
+	                    -Dsonar.sources=. \
+	                    -Dsonar.host.url=http://sonarqube:9000
+	                """
+	            }
+	        }
+	    }
+	}	
 
         stage('Build Docker Image') {
             steps {
