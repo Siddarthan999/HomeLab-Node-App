@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        sonarQube 'SonarScanner'
-    }
-
     environment {
         IMAGE_NAME = "node-app"
     }
@@ -24,8 +20,7 @@ pipeline {
                         sonar-scanner \
                         -Dsonar.projectKey=node-app \
                         -Dsonar.sources=. \
-                        -Dsonar.host.url=http://sonarqube:9000 \
-                        -Dsonar.login=${env.SONAR_AUTH_TOKEN}
+                        -Dsonar.host.url=http://sonarqube:9000
                     """
                 }
             }
