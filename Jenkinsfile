@@ -35,21 +35,22 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                sh '''
-                docker stop node-app || true
-                docker rm node-app || true
-                docker run -d --name node-app \
-                  --network proxy \
-                  -l "traefik.enable=true" \
-                  -l "traefik.http.routers.node.rule=Host(\"node-app.home\")" \
-                  -l "traefik.http.routers.node.entrypoints=websecure" \
-                  -l "traefik.http.routers.node.tls=true" \
-                  -l "traefik.http.services.node.loadbalancer.server.port=3000" \
-                  node-app
-                '''
-            }
-        }
+	stage('Deploy') {
+	    steps {
+	        sh """
+	        docker stop node-app || true
+	        docker rm node-app || true
+	        docker run -d --name node-app \
+	          --restart unless-stopped \
+	          --network proxy \
+	          -l 'traefik.enable=true' \
+	          -l 'traefik.http.routers.node.rule=Host("node-app.home")' \
+	          -l 'traefik.http.routers.node.entrypoints=websecure' \
+	          -l 'traefik.http.routers.node.tls=true' \
+	          -l 'traefik.http.services.node.loadbalancer.server.port=3000' \
+	          node-app
+	        """
+	    }
+	}
     }
 }
