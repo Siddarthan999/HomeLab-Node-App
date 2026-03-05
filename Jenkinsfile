@@ -52,5 +52,26 @@ pipeline {
 	        """
 	    }
 	}
+
+	stage('Cleanup') {
+            steps {
+                sh """
+                docker image prune -f
+                docker container prune -f
+                docker builder prune -f
+                """
+            }
+        }
+
+    }
+
+    post {
+        success {
+            echo "Pipeline Success 🚀"
+        }
+
+        failure {
+            echo "Pipeline Failed ❌"
+        }
     }
 }
