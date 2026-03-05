@@ -53,9 +53,9 @@ pipeline {
 	          --restart unless-stopped \
 	          --network proxy \
 	          -l 'traefik.enable=true' \
-	          -l 'traefik.http.routers.node.rule=Host("node-app.home")' \
-	          -l 'traefik.http.routers.node.entrypoints=websecure' \
-	          -l 'traefik.http.routers.node.tls=true' \
+	          -l 'traefik.http.routers.node.rule=Host("node-app.siddarthan.dpdns.org")' \
+	          -l 'traefik.http.routers.node.entrypoints=web' \
+#	          -l 'traefik.http.routers.node.tls=true' \
 	          -l 'traefik.http.services.node.loadbalancer.server.port=3000' \
 	          $IMAGE_NAME:$IMAGE_TAG
 	        """
