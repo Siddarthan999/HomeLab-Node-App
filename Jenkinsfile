@@ -49,7 +49,7 @@ pipeline {
 	          -l 'traefik.http.routers.node.entrypoints=web' \
 #	          -l 'traefik.http.routers.node.tls=true' \
 	          -l 'traefik.http.services.node.loadbalancer.server.port=3000' \
-	          $IMAGE_NAME:$IMAGE_TAG
+	          ${IMAGE_NAME}:${IMAGE_TAG}
 	        """
 	    }
 	}
