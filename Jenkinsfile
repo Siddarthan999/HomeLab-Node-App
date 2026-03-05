@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "node-app"
+	IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
     stages {
@@ -29,9 +30,17 @@ pipeline {
 	    }
 	}	
 
+	stage('Quality Gate') {
+	    steps {
+	        timeout(time: 2, unit: 'MINUTES') {
+	            waitForQualityGate abortPipeline: true
+	        }
+	    }
+	}
+
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $IMAGE_NAME .'
+                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
             }
         }
 
@@ -48,7 +57,7 @@ pipeline {
 	          -l 'traefik.http.routers.node.entrypoints=websecure' \
 	          -l 'traefik.http.routers.node.tls=true' \
 	          -l 'traefik.http.services.node.loadbalancer.server.port=3000' \
-	          node-app
+	          $IMAGE_NAME:$IMAGE_TAG
 	        """
 	    }
 	}
