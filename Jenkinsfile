@@ -62,16 +62,5 @@ pipeline {
                 """
             }
         }
-
-    }
-
-    post {
-        success {
-            echo "Pipeline Success 🚀"
-        }
-
-        failure {
-            echo "Pipeline Failed ❌"
-        }
     }
 }
